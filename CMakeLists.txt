@@ -4,7 +4,7 @@ project(NLSSolver VERSION 0.1.0)
 find_package(wxWidgets COMPONENTS core base REQUIRED)
 
 include_directories("include")
-include_directories("boost_1_73_0")
+include_directories("boost_1_72_0")
 
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "include/*.h" )
