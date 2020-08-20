@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/home/piotr/Documents/Dev/NLSSolver/build",
+  "command": "/bin/g++-9  -D_FILE_OFFSET_BITS=64 -D__WXGTK__ -I/home/piotr/Documents/Dev/NLSSolver/include -I/home/piotr/Documents/Dev/NLSSolver/boost_1_73_0 -isystem /usr/local/lib/wx/include/gtk3-unicode-static-3.1 -isystem /usr/local/include/wx-3.1   -pthread -g   -o CMakeFiles/NLSSolver.dir/src/Application.cpp.o -c /home/piotr/Documents/Dev/NLSSolver/src/Application.cpp",
+  "file": "/home/piotr/Documents/Dev/NLSSolver/src/Application.cpp"
+},
+{
+  "directory": "/home/piotr/Documents/Dev/NLSSolver/build",
+  "command": "/bin/g++-9  -D_FILE_OFFSET_BITS=64 -D__WXGTK__ -I/home/piotr/Documents/Dev/NLSSolver/include -I/home/piotr/Documents/Dev/NLSSolver/boost_1_73_0 -isystem /usr/local/lib/wx/include/gtk3-unicode-static-3.1 -isystem /usr/local/include/wx-3.1   -pthread -g   -o CMakeFiles/NLSSolver.dir/src/MainFrame.cpp.o -c /home/piotr/Documents/Dev/NLSSolver/src/MainFrame.cpp",
+  "file": "/home/piotr/Documents/Dev/NLSSolver/src/MainFrame.cpp"
+},
+{
+  "directory": "/home/piotr/Documents/Dev/NLSSolver/build",
+  "command": "/bin/g++-9  -D_FILE_OFFSET_BITS=64 -D__WXGTK__ -I/home/piotr/Documents/Dev/NLSSolver/include -I/home/piotr/Documents/Dev/NLSSolver/boost_1_73_0 -isystem /usr/local/lib/wx/include/gtk3-unicode-static-3.1 -isystem /usr/local/include/wx-3.1   -pthread -g   -o CMakeFiles/NLSSolver.dir/src/main.cpp.o -c /home/piotr/Documents/Dev/NLSSolver/src/main.cpp",
+  "file": "/home/piotr/Documents/Dev/NLSSolver/src/main.cpp"
+}
+]
