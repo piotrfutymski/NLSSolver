@@ -4,9 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/boost_1_73_0",
+                "${workspaceFolder}/boost_1_72_0",
                 "/usr/local/include/wx-3.1",
-                "/usr/local/lib/wx/include/gtk3-unicode-static-3.1"
+                "/usr/local/lib/wx/include/gtk2-unicode-3.1"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

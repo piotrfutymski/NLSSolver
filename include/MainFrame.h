@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
+#include <dlfcn.h>
 #include <wx/wx.h>
+#include "Solver.h"
 #include "Interval.h"
 
 class MainFrame : public wxFrame
@@ -17,6 +19,24 @@ private:
     void onCalculate(wxCommandEvent & event);
 
     void onLoad(wxCommandEvent & event);
+
+    void onIterChanged(wxCommandEvent & event);
+    void onErrChanged(wxCommandEvent & event);
+    void onOmegaChanged(wxCommandEvent & event);
+
+private:
+
+    bool _functionsLoaded = false;
+    void * f_table;
+
+    bool _iterSet = false;
+    int _iterNum;
+
+    bool _errSet = false;
+    double _errV;
+
+    bool _omegaSet = false;
+    double _omegaV;
 
 private:
 
@@ -72,3 +92,8 @@ const int ID_COUNTBUTTON = 101;
 const int ID_CHBOX0 = 200;
 const int ID_CHBOX1 = 201;
 const int ID_CHBOX2 = 202;
+
+const int ID_TEXT0 = 300;
+const int ID_TEXT1 = 301;
+const int ID_TEXT2 = 302;
+const int ID_TEXT3 = 303;

@@ -18,6 +18,7 @@ add_executable(NLSSolver ${SOURCES} ${HEADERS})
 
 target_link_libraries(NLSSolver mpfr)
 target_link_libraries(NLSSolver ${wxWidgets_LIBRARIES})
+target_link_libraries(NLSSolver dl)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
