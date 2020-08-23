@@ -55,7 +55,7 @@ MainFrame::MainFrame(const wxString& title)
     _hboxl5 = std::make_unique<wxBoxSizer>(wxHORIZONTAL);
     _startsolSText = std::make_unique<wxStaticText>(_panel.get(), wxID_ANY, wxT("Punkt początkowy:"));
     _hboxl5->Add(_startsolSText.get(), 0, wxLEFT | wxRIGHT | wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL, 5);
-    _startsolTCtrl = std::make_unique<wxTextCtrl>(_panel.get(), wxID_ANY);
+    _startsolTCtrl = std::make_unique<wxTextCtrl>(_panel.get(), ID_TEXT3);
     _hboxl5->Add(_startsolTCtrl.get(), 1, wxEXPAND);
     _startsolTCtrl->SetSize(200, 300);
     _vBoxLeft->Add(_hboxl5.get(), 1, wxEXPAND | wxALL, 10);
@@ -102,6 +102,7 @@ MainFrame::MainFrame(const wxString& title)
     Connect(ID_TEXT0, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onIterChanged));
     Connect(ID_TEXT1, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onErrChanged));
     Connect(ID_TEXT2, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onOmegaChanged));
+    Connect(ID_TEXT3, wxEVT_COMMAND_TEXT_UPDATED, wxCommandEventHandler(MainFrame::onStartSolutionChanged));
 
     Centre();
 
@@ -115,7 +116,12 @@ void MainFrame::onToogle0(wxCommandEvent& WXUNUSED(event))
         _chbox2->SetValue(false);
     }
     else
-        _chbox0->SetValue(true);   
+    {
+        _chbox0->SetValue(true);      
+    }
+    wxCommandEvent nullevent{};
+    onStartSolutionChanged(nullevent);
+          
 }
 
 void MainFrame::onToogle1(wxCommandEvent& WXUNUSED(event))
@@ -126,7 +132,12 @@ void MainFrame::onToogle1(wxCommandEvent& WXUNUSED(event))
         _chbox2->SetValue(false);
     }
     else
-        _chbox1->SetValue(true);   
+    {
+         _chbox1->SetValue(true); 
+    }
+    wxCommandEvent nullevent{};
+    onStartSolutionChanged(nullevent);
+         
 }
 
 void MainFrame::onToogle2(wxCommandEvent& WXUNUSED(event))
@@ -137,16 +148,30 @@ void MainFrame::onToogle2(wxCommandEvent& WXUNUSED(event))
         _chbox0->SetValue(false);
     }
     else
-        _chbox2->SetValue(true);   
+    {
+        _chbox2->SetValue(true);    
+    }
+    wxCommandEvent nullevent{};
+    onStartSolutionChanged(nullevent);
+           
 }
 
 void MainFrame::onCalculate(wxCommandEvent& WXUNUSED(event))
 {
-    std::vector<double> res(2);
+    std::vector<double> res;
+    std::vector<interval_arithmetic::Interval<double>> ires;
     int r_val;
-    if(_iterSet && _functionsLoaded && _errSet && _omegaSet)
+    if(_iterSet && _functionsLoaded && _errSet && _omegaSet && _startSolutionSet)
     {
-        r_val = solveEquations(res, f_table, {-10,10}, _iterNum, _errV, _omegaV);
+        if(_chbox0->GetValue())
+            r_val = solveEquations(res, f_table->f_x, f_table->df_x, _startSolutionD, _iterNum, _errV, _omegaV);
+        else if(_chbox1->GetValue())
+        {
+            startSolDTOI();
+            r_val = solveEquations(ires, f_table->fi_x, f_table->dfi_x, _startSolutionI, _iterNum, _errV, _omegaV);
+        }
+        else
+            r_val = solveEquations(ires, f_table->fi_x, f_table->dfi_x, _startSolutionI, _iterNum, _errV, _omegaV);     
     }
     else
     {
@@ -156,15 +181,27 @@ void MainFrame::onCalculate(wxCommandEvent& WXUNUSED(event))
     }     
     if(r_val == 0)
     {
-        auto dial = std::make_unique<wxMessageDialog>(nullptr, wxT("Wynik: "+std::to_string(res[0])+";"+ std::to_string(res[1])), wxT("Wynik"), wxOK);
-        dial->ShowModal();
+        if(_chbox0->GetValue())
+        {
+            auto dial = std::make_unique<wxMessageDialog>(nullptr, wxT("Wynik:\n") + resToString(res), wxT("Wynik"), wxOK);
+            dial->ShowModal();
+        }
+        else
+        {
+            auto dial = std::make_unique<wxMessageDialog>(nullptr, wxT("Wynik:\n") + resToString(ires), wxT("Wynik"), wxOK);
+            dial->ShowModal();
+        }
     }
     if(r_val == 1)
     {
         auto dialErr = std::make_unique<wxMessageDialog>(nullptr, wxT("Przekroczono dopuszczalną liczbę iteracji"),wxT("Wynik"), wxOK | wxICON_ERROR);
         dialErr->ShowModal();
     }
-    
+    if(r_val == 2)
+    {
+        auto dialErr = std::make_unique<wxMessageDialog>(nullptr, wxT("Nie udało się uzyskać wyniku - pochodna wynosiła 0 lub nastąpiło wyjście poza dziedzinę funkcji"),wxT("Wynik"), wxOK | wxICON_ERROR);
+        dialErr->ShowModal();
+    }
 }
 
 void MainFrame::onLoad(wxCommandEvent& WXUNUSED(event))
@@ -183,11 +220,11 @@ void MainFrame::onLoad(wxCommandEvent& WXUNUSED(event))
         }
         else
         {
-            f_table = (dlsym(so, "api_table"));
+            f_table = (APIs *)(dlsym(so, "api_table"));
 
             if(f_table == NULL)
             {
-                auto dialErr = std::make_unique<wxMessageDialog>(nullptr, wxT("Brak funkcji f_x i df_x w pliku .so"),wxT("Błąd"), wxOK | wxICON_ERROR);
+                auto dialErr = std::make_unique<wxMessageDialog>(nullptr, wxT("Brak odpowiedniej struktury w pliku .so"),wxT("Błąd"), wxOK | wxICON_ERROR);
                 dialErr->ShowModal();
             }
             else
@@ -271,4 +308,143 @@ void MainFrame::onOmegaChanged(wxCommandEvent& WXUNUSED(event))
         }
         
     }
+}
+
+void MainFrame::onStartSolutionChanged(wxCommandEvent& WXUNUSED(event))
+{
+    if(_startsolTCtrl->GetValue() == wxString(""))
+    {
+        _startSolutionSet = false;
+    }
+    else
+    {
+       if(_chbox0->GetValue() || _chbox1->GetValue())
+        {
+            int status = wxStringToStartSolD(_startsolTCtrl->GetValue());
+            if(status == 1)
+            {
+                _startSolutionSet = false;
+                _startsolTCtrl->SetForegroundColour("rgb(255,0,0)");
+            }
+            else
+            {
+                _startSolutionSet = true;
+                _startsolTCtrl->SetForegroundColour("rgb(0,0,0)");
+            }
+        }
+        else
+        {
+            int status = wxStringToStartSolI(_startsolTCtrl->GetValue());
+            if(status == 1)
+            {
+                _startSolutionSet = false;
+                _startsolTCtrl->SetForegroundColour("rgb(255,0,0)");
+            }
+            else
+            {
+                _startSolutionSet = true;
+                _startsolTCtrl->SetForegroundColour("rgb(0,0,0)");
+            }
+        }
+        
+    }
+    
+    
+}
+
+
+int MainFrame::wxStringToStartSolD(const wxString & s)
+{
+    auto tmp = s;
+    _startSolutionD.clear();
+
+    while(tmp.Len() != 0)
+    {
+        wxString rest;
+        auto sub = tmp.BeforeFirst(';',&rest);
+        tmp = rest;
+
+        double v;
+
+        if(!sub.ToDouble(&v))
+            return 1;
+        else
+            _startSolutionD.push_back(v);
+    }
+    return 0;
+}
+
+int MainFrame::wxStringToStartSolI(const wxString & s)
+{
+    auto tmp = s;
+    _startSolutionI.clear();
+
+    while(tmp.Len() != 0)
+    {
+        wxString rest;
+        auto sub = tmp.BeforeFirst('[',&rest);
+        tmp = rest;
+        sub = tmp.BeforeFirst(';', &rest);
+        tmp = rest;
+
+        double a,b;
+
+        if(!sub.ToDouble(&a))
+            return 1;
+
+        sub = tmp.BeforeFirst(']',&rest);
+        tmp = rest;
+
+        if(!sub.ToDouble(&b))
+            return 1;
+
+        sub = tmp.BeforeFirst(';', &rest);
+        tmp = rest;
+
+        _startSolutionI.push_back({a,b});
+    }
+    return 0;
+}
+
+void MainFrame::startSolDTOI()
+{
+    _startSolutionI.clear();
+    for (int i = 0; i < _startSolutionD.size(); i++)
+    {
+        _startSolutionI.push_back({_startSolutionD[i]});
+    }
+    
+}
+
+wxString MainFrame::resToString(const std::vector<double> & res)
+{
+    wxString rstring;
+    for(auto & x: res)
+    {
+        auto ix = interval_arithmetic::Interval<double>{x};
+
+        std::string l,r;
+        ix.IEndsToStrings(l,r);
+        rstring += wxString(l);
+        rstring += "\n";
+    }
+    return rstring;
+}
+
+wxString MainFrame::resToString(const std::vector<interval_arithmetic::Interval<double>> & res)
+{
+    wxString rstring;
+    for(auto & x: res)
+    {
+        auto v = x;
+        std::string l,r;
+        v.IEndsToStrings(l,r);
+        rstring += "[";
+        rstring += wxString(l);
+        rstring += " ; ";
+        rstring += wxString(r);
+        rstring += "]";
+        rstring += "\n";
+    }
+    return rstring;
 }

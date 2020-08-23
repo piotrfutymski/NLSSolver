@@ -5,6 +5,13 @@
 #include "Solver.h"
 #include "Interval.h"
 
+struct APIs{
+double (*f_x)(const std::vector<double> & X, int n);
+double (*df_x)(const std::vector<double> & X, int n);
+interval_arithmetic::Interval<double> (*fi_x)(const std::vector<interval_arithmetic::Interval<double>> & X, int n);
+interval_arithmetic::Interval<double> (*dfi_x)(const std::vector<interval_arithmetic::Interval<double>> & X, int n);
+};
+
 class MainFrame : public wxFrame
 {
 public:
@@ -23,11 +30,19 @@ private:
     void onIterChanged(wxCommandEvent & event);
     void onErrChanged(wxCommandEvent & event);
     void onOmegaChanged(wxCommandEvent & event);
+    void onStartSolutionChanged(wxCommandEvent & event);
+
+    int wxStringToStartSolD(const wxString & s);
+    int wxStringToStartSolI(const wxString & s);
+    void startSolDTOI();
+
+    static wxString resToString(const std::vector<double> & res);
+    static wxString resToString(const std::vector<interval_arithmetic::Interval<double>> & res);
 
 private:
 
     bool _functionsLoaded = false;
-    void * f_table;
+    APIs * f_table;
 
     bool _iterSet = false;
     int _iterNum;
@@ -37,6 +52,10 @@ private:
 
     bool _omegaSet = false;
     double _omegaV;
+
+    bool _startSolutionSet = false;
+    std::vector<double> _startSolutionD;
+    std::vector<interval_arithmetic::Interval<double>> _startSolutionI;
 
 private:
 
