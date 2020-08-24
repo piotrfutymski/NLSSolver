@@ -32,7 +32,7 @@ private:
     void onStartSolutionChanged(wxCommandEvent & event);
 
     int wxStringToStartSolD(const wxString & s);
-    void startSolDTOI();
+    int wxStringToStartSolI(const wxString & s);
 
     static wxString resToString(const std::vector<double> & res);
     static wxString resToString(const std::vector<interval_arithmetic::Interval<double>> & res);
