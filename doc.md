@@ -88,25 +88,31 @@ int max_iter = 100, double err = 1E-10, double omega = 1.0)
     auto sol = start_solution;
     while(itNum < max_iter)
     { 
-        auto mval = sol;
+        bool tobreak = true;     
+
+        auto solleft = sol;
+        auto solright = sol;
+
         for (int i = 0; i < sol.size(); i++)
         {
-            double cntr = (sol[i].a+ sol[i].b)/2.0;
-            sol[i] = {cntr, cntr};
+            solleft[i] = sol[i].a;
+            solright[i] = sol[i].b;
         }
-        bool tobreak = true;     
 
         for (int i = 0; i < sol.size(); i++)
         {
             try{
-                sol[i] = mval[i] - omegaI * fi_x(sol,i) / dfi_x(sol,i); 
+                auto a = solleft[i] - omegaI * fi_x(solleft, i) / dfi_x(solleft,i);
+                auto b = solright[i] - omegaI * fi_x(solright, i) / dfi_x(solright,i);
+
+                sol[i].a = std::min(a.a, b.a);
+                sol[i].b = std::max(a.b,b.b);
             }
             catch (std::exception & e)
             {
                     return 2;            
             }
-            if((sol[i].a - mval[i].a > err || sol[i].a-mval[i].a < -1 * err) ||
-                (sol[i].b - mval[i].b > err || sol[i].b-mval[i].b < -1 * err))
+            if(sol[i].b - sol[i].a > err)
                 tobreak = false;
             if(isnan(sol[i].a) || isnan(sol[i].b))
                 return 2;
@@ -153,6 +159,22 @@ double df(const std::vector<double> & X, int n)
         return 2 * X[1];
     return 0;
 }
+interval_arithmetic::Interval<double> fi(const std::vector<interval_arithmetic::Interval<double>> & X, int n)
+{
+    if(n == 0)
+        return  X[0]*X[0] + X[1] - interval_arithmetic::Interval<double>{5};
+    if(n == 1)
+        return X[0]*X[0] + X[1]*X[1] - interval_arithmetic::Interval<double>{7};
+    return 0;
+}
+interval_arithmetic::Interval<double> dfi(const std::vector<interval_arithmetic::Interval<double>> & X, int n)
+{
+    if(n == 0)
+        return interval_arithmetic::Interval<double>{2.0} *X[0];
+    if(n == 1)
+        return interval_arithmetic::Interval<double>{2.0} * X[1];
+    return 0;
+}
 ```
 
 W wyniku wywołania:
@@ -166,5 +188,19 @@ Wynik są niemal równe dokładnemu rozwiązaniu:<br />
 x = sqrt(3)<br />
 y = 2<br />
 
-W wyniku wywoałania
+W wyniku wywoałania:
+```
+int status = solveEquations(res, fi, dfi, {{1;2};{1;3}}, 100, 1E-10, 1.0);
+```
+Wynik będzie następujący:<br />
+x = \[1.7320508075260547; 1.7320508075708701\]<br />
+y = \[1.9999999999618194; 2.0000000000423568\]; <br />
+Wyniki zawierają w sobie wynik dokładny:<br />
+x = sqrt(3)<br />
+y = 2<br />
 
+Jednak takie wywołanie:
+```
+int status = solveEquations(res, fi, dfi, {{1;2};{1;3}}, 100, 1E-15, 1.0);
+```
+Zwróci wynik status = 1 w wyniku przekroczenia dopuszczalnej liczby iteracji.<br />
