@@ -7,7 +7,7 @@
 ## General info
 
 Non Linear System of Equation Solver, that uses simplified Newton method.
-Repo for lab project.
+Repo for lab project. [Solver functions documentation in PL](doc.md)
 
 ## Dependencies
 
