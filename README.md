@@ -3,6 +3,7 @@
 ## Table of contents
 * [General info](#general-info)
 * [Dependencies](#dependencies)
+* [Program screenshot](#program-screenshot)
 
 ## General info
 
@@ -25,3 +26,7 @@ $ sudo apt-add-repository http://tech.unige.ch/packages
 $ sudo apt-get update
 $ sudo apt-get install mpfrc++
 ```
+
+## Program screenshot
+
+![alt text](https://github.com/piotrfutymski/NLSSolver/blob/master/screenshot.jpg)
