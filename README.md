@@ -6,7 +6,8 @@
 
 ## General info
 
-Non Linear System of Equation Solver, that uses simplified Newton method
+Non Linear System of Equation Solver, that uses simplified Newton method.
+Repo for lab project.
 
 ## Dependencies
 
