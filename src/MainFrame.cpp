@@ -76,11 +76,6 @@ MainFrame::MainFrame(const wxString& title)
 
     _vBoxRight->Add(-1, 10);
 
-    _chbox2 = std::make_unique<wxCheckBox>(_panel.get(), ID_CHBOX2, wxT("Przedziałowa z wejściem przedziałowym"));
-    _vBoxRight->Add(_chbox2.get(), 0, wxEXPAND | wxALL, 10);
-
-    _vBoxRight->Add(-1, 10);
-
     _countButton = std::make_unique<wxButton>(_panel.get(), ID_COUNTBUTTON, wxT("OBLICZ"));
     _vBoxRight->Add(_countButton.get(), 0, wxLEFT | wxBOTTOM | wxALIGN_CENTER_HORIZONTAL, 5);
 
@@ -94,7 +89,6 @@ MainFrame::MainFrame(const wxString& title)
 
     Connect(ID_CHBOX0, wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(MainFrame::onToogle0));
     Connect(ID_CHBOX1, wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(MainFrame::onToogle1));
-    Connect(ID_CHBOX2, wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler(MainFrame::onToogle2));
 
     Connect(ID_COUNTBUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::onCalculate));
     Connect(ID_FILEBUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::onLoad));
@@ -113,15 +107,11 @@ void MainFrame::onToogle0(wxCommandEvent& WXUNUSED(event))
     if(_chbox0->GetValue())
     {
         _chbox1->SetValue(false);
-        _chbox2->SetValue(false);
     }
     else
     {
         _chbox0->SetValue(true);      
-    }
-    wxCommandEvent nullevent{};
-    onStartSolutionChanged(nullevent);
-          
+    }         
 }
 
 void MainFrame::onToogle1(wxCommandEvent& WXUNUSED(event))
@@ -129,32 +119,13 @@ void MainFrame::onToogle1(wxCommandEvent& WXUNUSED(event))
     if(_chbox1->GetValue())
     {
         _chbox0->SetValue(false);
-        _chbox2->SetValue(false);
     }
     else
     {
          _chbox1->SetValue(true); 
     }
-    wxCommandEvent nullevent{};
-    onStartSolutionChanged(nullevent);
-         
 }
 
-void MainFrame::onToogle2(wxCommandEvent& WXUNUSED(event))
-{
-    if(_chbox2->GetValue())
-    {
-        _chbox1->SetValue(false);
-        _chbox0->SetValue(false);
-    }
-    else
-    {
-        _chbox2->SetValue(true);    
-    }
-    wxCommandEvent nullevent{};
-    onStartSolutionChanged(nullevent);
-           
-}
 
 void MainFrame::onCalculate(wxCommandEvent& WXUNUSED(event))
 {
@@ -165,13 +136,11 @@ void MainFrame::onCalculate(wxCommandEvent& WXUNUSED(event))
     {
         if(_chbox0->GetValue())
             r_val = solveEquations(res, f_table->f_x, f_table->df_x, _startSolutionD, _iterNum, _errV, _omegaV);
-        else if(_chbox1->GetValue())
+        else
         {
             startSolDTOI();
-            r_val = solveEquations(ires, f_table->fi_x, f_table->dfi_x, _startSolutionI, _iterNum, _errV, _omegaV);
+            r_val = solveEquations(ires, f_table->fi_x, f_table->dfi_x, _startSolutionI, _iterNum, _errV, _omegaV);    
         }
-        else
-            r_val = solveEquations(ires, f_table->fi_x, f_table->dfi_x, _startSolutionI, _iterNum, _errV, _omegaV);     
     }
     else
     {
@@ -318,38 +287,19 @@ void MainFrame::onStartSolutionChanged(wxCommandEvent& WXUNUSED(event))
     }
     else
     {
-       if(_chbox0->GetValue() || _chbox1->GetValue())
+
+        int status = wxStringToStartSolD(_startsolTCtrl->GetValue());
+        if(status == 1)
         {
-            int status = wxStringToStartSolD(_startsolTCtrl->GetValue());
-            if(status == 1)
-            {
-                _startSolutionSet = false;
-                _startsolTCtrl->SetForegroundColour("rgb(255,0,0)");
-            }
-            else
-            {
-                _startSolutionSet = true;
-                _startsolTCtrl->SetForegroundColour("rgb(0,0,0)");
-            }
+            _startSolutionSet = false;
+            _startsolTCtrl->SetForegroundColour("rgb(255,0,0)");
         }
         else
         {
-            int status = wxStringToStartSolI(_startsolTCtrl->GetValue());
-            if(status == 1)
-            {
-                _startSolutionSet = false;
-                _startsolTCtrl->SetForegroundColour("rgb(255,0,0)");
-            }
-            else
-            {
-                _startSolutionSet = true;
-                _startsolTCtrl->SetForegroundColour("rgb(0,0,0)");
-            }
-        }
-        
-    }
-    
-    
+            _startSolutionSet = true;
+            _startsolTCtrl->SetForegroundColour("rgb(0,0,0)");
+        }     
+    }   
 }
 
 
@@ -370,38 +320,6 @@ int MainFrame::wxStringToStartSolD(const wxString & s)
             return 1;
         else
             _startSolutionD.push_back(v);
-    }
-    return 0;
-}
-
-int MainFrame::wxStringToStartSolI(const wxString & s)
-{
-    auto tmp = s;
-    _startSolutionI.clear();
-
-    while(tmp.Len() != 0)
-    {
-        wxString rest;
-        auto sub = tmp.BeforeFirst('[',&rest);
-        tmp = rest;
-        sub = tmp.BeforeFirst(';', &rest);
-        tmp = rest;
-
-        double a,b;
-
-        if(!sub.ToDouble(&a))
-            return 1;
-
-        sub = tmp.BeforeFirst(']',&rest);
-        tmp = rest;
-
-        if(!sub.ToDouble(&b))
-            return 1;
-
-        sub = tmp.BeforeFirst(';', &rest);
-        tmp = rest;
-
-        _startSolutionI.push_back({a,b});
     }
     return 0;
 }

@@ -21,7 +21,6 @@ private:
 
     void onToogle0(wxCommandEvent & event);
     void onToogle1(wxCommandEvent & event);
-    void onToogle2(wxCommandEvent & event);
 
     void onCalculate(wxCommandEvent & event);
 
@@ -33,7 +32,6 @@ private:
     void onStartSolutionChanged(wxCommandEvent & event);
 
     int wxStringToStartSolD(const wxString & s);
-    int wxStringToStartSolI(const wxString & s);
     void startSolDTOI();
 
     static wxString resToString(const std::vector<double> & res);
@@ -101,7 +99,6 @@ private:
 
     std::unique_ptr<wxCheckBox> _chbox0;
     std::unique_ptr<wxCheckBox> _chbox1;
-    std::unique_ptr<wxCheckBox> _chbox2;
 
 };
 
@@ -110,7 +107,6 @@ const int ID_COUNTBUTTON = 101;
 
 const int ID_CHBOX0 = 200;
 const int ID_CHBOX1 = 201;
-const int ID_CHBOX2 = 202;
 
 const int ID_TEXT0 = 300;
 const int ID_TEXT1 = 301;

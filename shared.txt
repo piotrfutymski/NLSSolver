@@ -1,2 +1,2 @@
-gcc -c -Wall -I ../boost_1_72_0 -Werror -fpic testowy.cpp
+gcc -c -Wall -Werror -fpic testowy.cpp
 gcc -shared -o  lib.so testowy.o

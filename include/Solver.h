@@ -36,7 +36,7 @@ double (*df_x) (const std::vector<double> &, int) , const std::vector<double> & 
 
     if(itNum >= max_iter)
         return 1;  
-
+    return -1;
 }
 
 inline int solveEquations(std::vector<interval_arithmetic::Interval<double>> & result, 
@@ -51,9 +51,15 @@ int max_iter = 100, double err = 1E-10, double omega = 1.0)
     int itNum = 0;
     auto sol = start_solution;
     while(itNum < max_iter)
-    {
+    { 
         auto mval = sol;
-        bool tobreak = true;
+        for (int i = 0; i < sol.size(); i++)
+        {
+            double cntr = (sol[i].a+ sol[i].b)/2.0;
+            sol[i] = {cntr, cntr};
+        }
+        bool tobreak = true;     
+
         for (int i = 0; i < sol.size(); i++)
         {
             try{
@@ -83,5 +89,5 @@ int max_iter = 100, double err = 1E-10, double omega = 1.0)
 
     if(itNum >= max_iter)
         return 1;
-    
+    return -1;
 }
